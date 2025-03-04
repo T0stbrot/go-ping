@@ -20,7 +20,7 @@ type PingResult struct {
 	Error   string `json:"error,omitempty"`
 }
 
-func ping4(destination string, ttl int, timeout int) PingResult {
+func Ping4(destination string, ttl int, timeout int) PingResult {
 	result := PingResult{Target: destination, TTL: ttl}
 
 	conn, err := net.ListenPacket("ip4:icmp", "0.0.0.0")
