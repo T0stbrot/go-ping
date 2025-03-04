@@ -1,7 +1,6 @@
 package goping
 
 import (
-	"encoding/json"
 	"fmt"
 	"net"
 	"os"
