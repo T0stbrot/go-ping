@@ -1,4 +1,4 @@
-package main
+package goping
 
 import (
 	"encoding/json"
