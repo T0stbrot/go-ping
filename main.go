@@ -102,3 +102,87 @@ func Ping4(destination string, ttl int, timeout int) PingResult {
 
 	return result
 }
+
+func Ping6(destination string, ttl int, timeout int) PingResult {
+	result := PingResult{Target: destination, TTL: ttl}
+
+	conn, err := net.ListenPacket("ip6:ipv6-icmp", "::")
+	if err != nil {
+		result.Message = "error"
+		result.Error = fmt.Sprintf("%v", err)
+		return result
+	}
+	defer conn.Close()
+
+	p := ipv6.NewPacketConn(conn)
+	if err := p.SetHopLimit(ttl); err != nil {
+		result.Message = "error"
+		result.Error = fmt.Sprintf("%v", err)
+		return result
+	}
+
+	dst, err := net.ResolveIPAddr("ip6", destination)
+	if err != nil {
+		result.Message = "error"
+		result.Error = fmt.Sprintf("%v", err)
+		return result
+	}
+
+	icmpMessage := icmp.Message{
+		Type: ipv6.ICMPTypeEchoRequest,
+		Code: 0,
+		Body: &icmp.Echo{
+			ID:   os.Getpid() & 0xffff,
+			Seq:  1,
+			Data: []byte("icmp6"),
+		},
+	}
+
+	msgBytes, err := icmpMessage.Marshal(nil)
+	if err != nil {
+		result.Message = "error"
+		result.Error = fmt.Sprintf("%v", err)
+		return result
+	}
+
+	sT := time.Now()
+
+	if _, err := conn.WriteTo(msgBytes, dst); err != nil {
+		result.Message = "error"
+		result.Error = fmt.Sprintf("%v", err)
+		return result
+	}
+
+	buf := make([]byte, 1492)
+	conn.SetDeadline(time.Now().Add(time.Duration(timeout) * time.Millisecond))
+
+	n, addr, err := conn.ReadFrom(buf)
+	if err != nil {
+		result.Message = "error"
+		result.Error = fmt.Sprintf("%v", err)
+		return result
+	}
+
+	eT := time.Now()
+	result.RTT = fmt.Sprintf("%.3fms", float64(eT.Sub(sT).Microseconds())/1000)
+
+	reply, err := icmp.ParseMessage(58, buf[:n]) // 58 is the ICMPv6 protocol number
+	if err != nil {
+		result.Message = "error"
+		result.Error = fmt.Sprintf("%v", err)
+		return result
+	}
+
+	result.LastHop = addr.String()
+	switch reply.Type {
+	case ipv6.ICMPTypeEchoReply:
+		result.Message = "succeed"
+	case ipv6.ICMPTypeTimeExceeded:
+		result.Message = "timeexceed"
+	default:
+		result.Message = "error"
+		result.Error = fmt.Sprintf("%v", reply)
+	}
+
+	return result
+}
