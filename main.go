@@ -81,7 +81,7 @@ func Ping4(destination string, ttl int, timeout int) PingResult {
 	}
 
 	eT := time.Now()
-	result.RTT = fmt.Sprintf("%.3fms", float64(eT.Sub(sT).Microseconds())/1000)
+	result.RTT = fmt.Sprintf("%.3f", float64(eT.Sub(sT).Microseconds())/1000)
 
 	reply, err := icmp.ParseMessage(1, buf[:n])
 	if err != nil {
@@ -165,7 +165,7 @@ func Ping6(destination string, ttl int, timeout int) PingResult {
 	}
 
 	eT := time.Now()
-	result.RTT = fmt.Sprintf("%.3fms", float64(eT.Sub(sT).Microseconds())/1000)
+	result.RTT = fmt.Sprintf("%.3f", float64(eT.Sub(sT).Microseconds())/1000)
 
 	reply, err := icmp.ParseMessage(58, buf[:n]) // 58 is the ICMPv6 protocol number
 	if err != nil {
