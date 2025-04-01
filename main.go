@@ -172,7 +172,7 @@ func Ping6(destination string, ttl int, timeout int) PingResult {
 	result.RTT = fmt.Sprintf("%.3f", float64(eT.Sub(sT).Microseconds())/1000)
 
 	if cm != nil {
-		result.TTL = cm.TTL
+		result.TTL = cm.HopLimit
 	}
 
 	reply, err := icmp.ParseMessage(58, buf[:n])
