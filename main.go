@@ -13,11 +13,10 @@ import (
 
 type PingResult struct {
 	Target  string `json:"target"`
-	TTL     int    `json:"ttl"`
+	TTL     int    `json:"ttl,omitempty"`
 	LastHop string `json:"lasthop"`
 	RTT     string `json:"rtt,omitempty"`
-	Message string `json:"message"`
-	Error   string `json:"error,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 func Ping4(destination string, ttl int, timeout int) PingResult {
@@ -25,23 +24,20 @@ func Ping4(destination string, ttl int, timeout int) PingResult {
 
 	conn, err := net.ListenPacket("ip4:icmp", "0.0.0.0")
 	if err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 	defer conn.Close()
 
 	p := ipv4.NewPacketConn(conn)
 	if err := p.SetTTL(ttl); err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 
 	dst, err := net.ResolveIPAddr("ip4", destination)
 	if err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 
@@ -57,16 +53,14 @@ func Ping4(destination string, ttl int, timeout int) PingResult {
 
 	msgBytes, err := icmpMessage.Marshal(nil)
 	if err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 
 	sT := time.Now()
 
 	if _, err := conn.WriteTo(msgBytes, dst); err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 
@@ -75,8 +69,7 @@ func Ping4(destination string, ttl int, timeout int) PingResult {
 
 	n, cm, addr, err := p.ReadFrom(buf)
 	if err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 
@@ -89,8 +82,7 @@ func Ping4(destination string, ttl int, timeout int) PingResult {
 
 	reply, err := icmp.ParseMessage(1, buf[:n])
 	if err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 
@@ -101,8 +93,7 @@ func Ping4(destination string, ttl int, timeout int) PingResult {
 	case ipv4.ICMPTypeTimeExceeded:
 		result.Message = "timeexceed"
 	default:
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", reply)
+		result.Message = fmt.Sprintf("%v", reply)
 	}
 
 	return result
@@ -113,23 +104,20 @@ func Ping6(destination string, ttl int, timeout int) PingResult {
 
 	conn, err := net.ListenPacket("ip6:ipv6-icmp", "::")
 	if err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 	defer conn.Close()
 
 	p := ipv6.NewPacketConn(conn)
 	if err := p.SetHopLimit(ttl); err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 
 	dst, err := net.ResolveIPAddr("ip6", destination)
 	if err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 
@@ -145,16 +133,14 @@ func Ping6(destination string, ttl int, timeout int) PingResult {
 
 	msgBytes, err := icmpMessage.Marshal(nil)
 	if err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 
 	sT := time.Now()
 
 	if _, err := conn.WriteTo(msgBytes, dst); err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 
@@ -163,8 +149,7 @@ func Ping6(destination string, ttl int, timeout int) PingResult {
 
 	n, cm, addr, err := p.ReadFrom(buf)
 	if err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 
@@ -177,8 +162,7 @@ func Ping6(destination string, ttl int, timeout int) PingResult {
 
 	reply, err := icmp.ParseMessage(58, buf[:n])
 	if err != nil {
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", err)
+		result.Message = fmt.Sprintf("%v", err)
 		return result
 	}
 
@@ -189,8 +173,7 @@ func Ping6(destination string, ttl int, timeout int) PingResult {
 	case ipv6.ICMPTypeTimeExceeded:
 		result.Message = "timeexceed"
 	default:
-		result.Message = "error"
-		result.Error = fmt.Sprintf("%v", reply)
+		result.Message = fmt.Sprintf("%v", reply)
 	}
 
 	return result
