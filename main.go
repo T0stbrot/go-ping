@@ -22,7 +22,8 @@ type PingProto struct {
 	IP string
 	Listen string
 	Type icmp.Type
-	Conn any
+	Conn4 ipv4.PacketConn
+	Conn6 ipv6.PacketConn
 }
 
 func Ping(ver int, destination string, ttl int, timeout int) PingResult {
@@ -40,20 +41,6 @@ func Ping(ver int, destination string, ttl int, timeout int) PingResult {
 		return result
 	}
 	defer conn.Close()
-
-	if ver == 6 {
-		proto.Conn = ipv6.NewPacketConn(conn)
-		if err := proto.Conn.SetHopLimit(ttl); err != nil {
-			result.Message = fmt.Sprintf("%v", err)
-			return result
-		}
-	} else {
-		proto.Conn = ipv4.NewPacketConn(conn)
-		if err := proto.Conn.SetTTL(ttl); err != nil {
-			result.Message = fmt.Sprintf("%v", err)
-			return result
-		}
-	}
 
 	dst, err := net.ResolveIPAddr(proto.IP, destination)
 	if err != nil {
@@ -87,7 +74,7 @@ func Ping(ver int, destination string, ttl int, timeout int) PingResult {
 	buf := make([]byte, 1280)
 	conn.SetDeadline(time.Now().Add(time.Duration(timeout) * time.Millisecond))
 
-	n, _, addr, err := proto.Conn.ReadFrom(buf)
+	n, addr, err := conn.ReadFrom(buf)
 	if err != nil {
 		result.Message = fmt.Sprintf("%v", err)
 		return result
