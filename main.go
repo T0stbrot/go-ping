@@ -21,16 +21,16 @@ type PingResult struct {
 type PingProto struct {
 	IP string
 	Listen string
-	Type int
+	Type icmp.Type
 }
 
 func Ping(ver int, destination string, ttl int, timeout int) PingResult {
 	result := PingResult{Target: destination}
 
-	proto := PingProto{IP: "ip4", Listen: "0.0.0.0", Type: 8}
+	proto := PingProto{IP: "ip4", Listen: "0.0.0.0", Type: ipv4.ICMPTypeEcho}
 
 	if ver == 6 {
-		proto = PingProto{IP: "ip6", Listen: "::", Type: 128}
+		proto = PingProto{IP: "ip6", Listen: "::", Type: ipv6.ICMPTypeEchoRequest}
 	}
 
 	conn, err := net.ListenPacket(fmt.Sprintf("%s:icmp", proto.IP), proto.Listen)
