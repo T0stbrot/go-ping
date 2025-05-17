@@ -87,7 +87,7 @@ func Ping(ver int, destination string, ttl int, timeout int) PingResult {
 	buf := make([]byte, 1280)
 	conn.SetDeadline(time.Now().Add(time.Duration(timeout) * time.Millisecond))
 
-	n, _, addr, err := Proto.Conn.ReadFrom(buf)
+	n, _, addr, err := proto.Conn.ReadFrom(buf)
 	if err != nil {
 		result.Message = fmt.Sprintf("%v", err)
 		return result
