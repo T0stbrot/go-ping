@@ -114,6 +114,8 @@ func Ping(ver int, destination string, ttl int, timeout int) PingResult {
 	default:
 		result.Message = fmt.Sprintf("%v", reply)
 	}
+
+	return result
 }
 
 func Ping4(destination string, ttl int, timeout int) PingResult {
