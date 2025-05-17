@@ -47,7 +47,7 @@ func Ping(ver int, destination string, ttl int, timeout int) PingResult {
 	}
 
 	if ver == 6 {
-		p := ipv6.NewPacketConn(conn)
+		p = ipv6.NewPacketConn(conn)
 		if err := p.SetHopLimit(ttl); err != nil {
 			result.Message = fmt.Sprintf("%v", err)
 			return result
