@@ -27,10 +27,10 @@ type PingProto struct {
 func Ping(ver int, destination string, ttl int, timeout int) PingResult {
 	result := PingResult{Target: destination}
 
+	proto := PingProto{IP: "ip4", Listen: "0.0.0.0", Type: 8}
+
 	if ver == 6 {
-		proto := PingProto{IP: "ip6", Listen: "::", Type: 128}
-	} else {
-		proto := PingProto{IP: "ip4", Listen: "0.0.0.0", Type: 8}
+		proto = PingProto{IP: "ip6", Listen: "::", Type: 128}
 	}
 
 	conn, err := net.ListenPacket(fmt.Sprintf("%s:icmp", proto.IP), proto.Listen)
