@@ -46,7 +46,7 @@ func Ping4(destination string, ttl int, timeout int) PingResult {
 		Body: &icmp.Echo{
 			ID:   syscall.Getpid() & 0xffff,
 			Seq:  1,
-			Data: []byte("icmp"),
+			Data: make([]byte, 16),
 		},
 	}
 
@@ -122,7 +122,7 @@ func Ping6(destination string, ttl int, timeout int) PingResult {
 		Body: &icmp.Echo{
 			ID:   syscall.Getpid() & 0xffff,
 			Seq:  1,
-			Data: []byte("icmp6"),
+			Data: make([]byte, 16),
 		},
 	}
 
