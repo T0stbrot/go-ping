@@ -32,7 +32,9 @@ func Ping(ver int, destination string, ttl int, timeout int) PingResult {
 	proto := PingProto{IP: "ip4", Listen: "0.0.0.0", Type: ipv4.ICMPTypeEcho}
 
 	if ver == 6 {
-		proto = PingProto{IP: "ip6", Listen: "::", Type: ipv6.ICMPTypeEchoRequest}
+		proto.IP = "ip6"
+		proto.Listen = "::"
+		proto.Type = ipv6.ICMPTypeEchoRequest
 	}
 
 	conn, err := net.ListenPacket(fmt.Sprintf("%s:icmp", proto.IP), proto.Listen)
