@@ -13,14 +13,13 @@ import (
 
 type PingResult struct {
 	Target  string `json:"target"`
-	TTL     int    `json:"ttl,omitempty"`
 	LastHop string `json:"lasthop"`
 	RTT     string `json:"rtt,omitempty"`
 	Message string `json:"message,omitempty"`
 }
 
 func Ping4(destination string, ttl int, timeout int) PingResult {
-	result := PingResult{Target: destination, TTL: ttl}
+	result := PingResult{Target: destination}
 
 	conn, err := net.ListenPacket("ip4:icmp", "0.0.0.0")
 	if err != nil {
@@ -67,7 +66,7 @@ func Ping4(destination string, ttl int, timeout int) PingResult {
 	buf := make([]byte, 1280)
 	conn.SetDeadline(time.Now().Add(time.Duration(timeout) * time.Millisecond))
 
-	n, cm, addr, err := p.ReadFrom(buf)
+	n, _, addr, err := p.ReadFrom(buf)
 	if err != nil {
 		result.Message = fmt.Sprintf("%v", err)
 		return result
@@ -75,10 +74,6 @@ func Ping4(destination string, ttl int, timeout int) PingResult {
 
 	eT := time.Now()
 	result.RTT = fmt.Sprintf("%.3f", float64(eT.Sub(sT).Microseconds())/1000)
-
-	if cm != nil {
-		result.TTL = cm.TTL
-	}
 
 	reply, err := icmp.ParseMessage(1, buf[:n])
 	if err != nil {
@@ -100,7 +95,7 @@ func Ping4(destination string, ttl int, timeout int) PingResult {
 }
 
 func Ping6(destination string, ttl int, timeout int) PingResult {
-	result := PingResult{Target: destination, TTL: ttl}
+	result := PingResult{Target: destination}
 
 	conn, err := net.ListenPacket("ip6:ipv6-icmp", "::")
 	if err != nil {
@@ -147,7 +142,7 @@ func Ping6(destination string, ttl int, timeout int) PingResult {
 	buf := make([]byte, 1280)
 	conn.SetDeadline(time.Now().Add(time.Duration(timeout) * time.Millisecond))
 
-	n, cm, addr, err := p.ReadFrom(buf)
+	n, _, addr, err := p.ReadFrom(buf)
 	if err != nil {
 		result.Message = fmt.Sprintf("%v", err)
 		return result
@@ -155,10 +150,6 @@ func Ping6(destination string, ttl int, timeout int) PingResult {
 
 	eT := time.Now()
 	result.RTT = fmt.Sprintf("%.3f", float64(eT.Sub(sT).Microseconds())/1000)
-
-	if cm != nil {
-		result.TTL = cm.HopLimit
-	}
 
 	reply, err := icmp.ParseMessage(58, buf[:n])
 	if err != nil {
