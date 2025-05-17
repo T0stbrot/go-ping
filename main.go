@@ -3,7 +3,7 @@ package goping
 import (
 	"fmt"
 	"net"
-	"os"
+	"syscall"
 	"time"
 
 	"golang.org/x/net/icmp"
@@ -44,7 +44,7 @@ func Ping4(destination string, ttl int, timeout int) PingResult {
 		Type: ipv4.ICMPTypeEcho,
 		Code: 0,
 		Body: &icmp.Echo{
-			ID:   os.Getpid() & 0xffff,
+			ID:   syscall.Getpid() & 0xffff,
 			Seq:  1,
 			Data: []byte("icmp"),
 		},
@@ -120,7 +120,7 @@ func Ping6(destination string, ttl int, timeout int) PingResult {
 		Type: ipv6.ICMPTypeEchoRequest,
 		Code: 0,
 		Body: &icmp.Echo{
-			ID:   os.Getpid() & 0xffff,
+			ID:   syscall.Getpid() & 0xffff,
 			Seq:  1,
 			Data: []byte("icmp6"),
 		},
