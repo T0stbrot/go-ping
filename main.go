@@ -40,15 +40,15 @@ func Ping(ver int, destination string, ttl int, timeout int) PingResult {
 	}
 	defer conn.Close()
 
+	p := ipv4.NewPacketConn(conn)
+		if err := p.SetTTL(ttl); err != nil {
+			result.Message = fmt.Sprintf("%v", err)
+			return result
+	}
+
 	if ver == 6 {
 		p := ipv6.NewPacketConn(conn)
 		if err := p.SetHopLimit(ttl); err != nil {
-			result.Message = fmt.Sprintf("%v", err)
-			return result
-		}
-	} else {
-		p := ipv4.NewPacketConn(conn)
-		if err := p.SetTTL(ttl); err != nil {
 			result.Message = fmt.Sprintf("%v", err)
 			return result
 		}
